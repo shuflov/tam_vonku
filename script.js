@@ -1,9 +1,12 @@
-// 1. Supabase Initialization
-//    REPLACE WITH YOUR ACTUAL SUPABASE URL AND ANON KEY
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., 'https://xyz.supabase.co'
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // e.g., 'eyJ...'
+// supabase-config.js
+const SUPABASE_URL = 'SUPABASE_URL_REMOVED';
+const SUPABASE_KEY = 'SUPABASE_KEY_REDACTED';
 
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize the Supabase client
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Export the client if using modules
+// export { supabaseClient };
 
 // 2. DOM Elements
 const daysOnRoadEl = document.getElementById('daysOnRoad');
