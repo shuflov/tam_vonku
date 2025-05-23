@@ -75,11 +75,9 @@ async function getUniqueCountriesCount() {
                 return;
             }
 
-            // The 'data' array will contain objects like [{ location: "Paris" }, { location: "Rome" }]
-            // The number of unique places is simply the length of this array
-            const uniqueCount = data.length;
+            const uniqueCountryCount = data.length;
 
-            document.getElementById('country').textContent = uniqueCount;
+            document.getElementById('country').textContent = uniqueCountryCount;
 
         } catch (err) {
             console.error('An unexpected error occurred while fetching unique countries:', err);
