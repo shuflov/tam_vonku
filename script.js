@@ -63,25 +63,30 @@ async function getUniquePlacesCount() {
 
 //number of visited countries
 async function getUniqueCountriesCount() {
-        try {
-            // Select the 'location' column and request distinct values
-            const { data, error } = await supabaseClient
-                .from('cost_accommodation')
-                .select('country', { distinct: true }); // Request only unique 'location' values
+    try {
+        const { data, error } = await supabaseClient
+            .from('cost_accommodation')
+            .select('country'); 
 
-            if (error) {
-                console.error('Error fetching unique countries:', error.message);
-                document.getElementById('country').textContent = 'Error!';
-                return;
-            }
-
-            const uniqueCountryCount = data.length;
-
-            document.getElementById('country').textContent = uniqueCountryCount;
-
-        } catch (err) {
-            console.error('An unexpected error occurred while fetching unique countries:', err);
+        if (error) {
+            console.error('Error fetching all countries for unique count:', error.message);
             document.getElementById('country').textContent = 'Error!';
+            return;
         }
+
+        if (!data || data.length === 0) {
+            document.getElementById('country').textContent = 0;
+            return;
+        }
+
+        const allCountries = data.map(item => item.country);
+        const uniqueCountriesSet = new Set(allCountries);
+        const uniqueCountryCount = uniqueCountriesSet.size;
+        document.getElementById('country').textContent = uniqueCountryCount + 1; //norway
+
+    } catch (err) {
+        console.error('An unexpected error occurred while processing unique countries:', err);
+        document.getElementById('country').textContent = 'Error!';
     }
-    getUniqueCountriesCount();
+}
+getUniqueCountriesCount();
