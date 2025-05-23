@@ -39,7 +39,7 @@ function calculateNights(checkIn, checkOut) {
 // 4. Fetching Data from Supabase
 
 async function fetchAccommodationData() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('cost_accommodation')
         .select('*')
         .order('check_in', { ascending: false }); // Assuming 'check_in' column exists
@@ -52,7 +52,7 @@ async function fetchAccommodationData() {
 }
 
 async function fetchTransportData() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('cost_transport')
         .select('*')
         .order('date', { ascending: false }); // Assuming a 'date' column exists for transport
