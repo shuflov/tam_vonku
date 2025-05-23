@@ -39,7 +39,7 @@ async function getUniquePlacesCount() {
     try {
         const { data, error } = await supabaseClient
             .from('cost_accommodation')
-            .select('accommodation name'); 
+            .select('accommodationName'); 
 
         if (error) {
             console.error('Error fetching all places for unique count:', error.message);
@@ -52,7 +52,7 @@ async function getUniquePlacesCount() {
             return;
         }
 
-        const allPlaces = data.map(item => item.accommodation_name);
+        const allPlaces = data.map(item => item.accommodationName);
         const uniquePlacesSet = new Set(allPlaces);
         const uniquePlacesCount = uniquePlacessSet.size;
         document.getElementById('uniquePlaces').textContent = uniquePlacesCount; //norway
