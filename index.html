@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Tracker Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <h1>My Travel & Expense Tracker</h1>
+    </header>
+
+    <main>
+        <section id="statistics">
+            <h2>Key Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Days on the Road</h3>
+                    <p id="daysOnRoad">Calculating...</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Flights Taken</h3>
+                    <p id="flightsTaken">Calculating...</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Unique Places Stayed</h3>
+                    <p id="uniquePlaces">Calculating...</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg. Price per Night</h3>
+                    <p id="avgPricePerNight">Calculating...</p>
+                </div>
+                </div>
+        </section>
+
+        <section id="cost-data">
+            <h2>Accommodation Records</h2>
+            <div class="table-container">
+                <table id="accommodationTable">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Nights</th>
+                            <th>Price (€)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+
+            <h2>Transport Records</h2>
+            <div class="table-container">
+                <table id="transportTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Cost (€)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Travel Tracker. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
