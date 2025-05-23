@@ -34,3 +34,29 @@ async function getFlightCount() {
 
     getFlightCount();
 
+//unique places
+async function getUniquePlacesCount() {
+        try {
+            // Select the 'location' column and request distinct values
+            const { data, error } = await supabaseClient
+                .from('cost_accommodation')
+                .select('location', { distinct: true }); // Request only unique 'location' values
+
+            if (error) {
+                console.error('Error fetching unique places:', error.message);
+                document.getElementById('uniquePlaces').textContent = 'Error!';
+                return;
+            }
+
+            // The 'data' array will contain objects like [{ location: "Paris" }, { location: "Rome" }]
+            // The number of unique places is simply the length of this array
+            const uniqueCount = data.length;
+
+            document.getElementById('uniquePlaces').textContent = uniqueCount;
+
+        } catch (err) {
+            console.error('An unexpected error occurred while fetching unique places:', err);
+            document.getElementById('uniquePlaces').textContent = 'Error!';
+        }
+    }
+    getUniquePlacesCount();
