@@ -60,3 +60,30 @@ async function getUniquePlacesCount() {
         }
     }
     getUniquePlacesCount();
+
+//number of visited countries
+async function getUniqueCountriesCount() {
+        try {
+            // Select the 'location' column and request distinct values
+            const { data, error } = await supabaseClient
+                .from('cost_accommodation')
+                .select('country', { distinct: true }); // Request only unique 'location' values
+
+            if (error) {
+                console.error('Error fetching unique countries:', error.message);
+                document.getElementById('country').textContent = 'Error!';
+                return;
+            }
+
+            // The 'data' array will contain objects like [{ location: "Paris" }, { location: "Rome" }]
+            // The number of unique places is simply the length of this array
+            const uniqueCount = data.length;
+
+            document.getElementById('country').textContent = uniqueCount;
+
+        } catch (err) {
+            console.error('An unexpected error occurred while fetching unique countries:', err);
+            document.getElementById('country').textContent = 'Error!';
+        }
+    }
+    getUniqueCountriesCount();
