@@ -98,35 +98,53 @@ async function calculateAndDisplayStats() {
     const accommodationData = await fetchAccommodationData();
     const transportData = await fetchTransportData();
 
-    // Days on the Road (simple approach: earliest check-in to latest check-out/transport date)
-    let allDates = [];
-    accommodationData.forEach(acc => {
-        if (acc.check_in) allDates.push(new Date(acc.check_in));
-        if (acc.check_out) allDates.push(new Date(acc.check_out));
-    });
-    transportData.forEach(trans => {
-        if (trans.date) allDates.push(new Date(trans.date));
-        if (trans.departure_date) allDates.push(new Date(trans.departure_date));
-        if (trans.arrival_date) allDates.push(new Date(trans.arrival_date));
-    });
+    // --- Start: MODIFIED SECTION FOR DAYS ON THE ROAD ---
+    const fixedStartDate = new Date('2024-01-28'); // Your fixed start date
+    const today = new Date(); // Get today's date
 
-    if (allDates.length > 0) {
-        const earliestDate = new Date(Math.min(...allDates));
-        const latestDate = new Date(Math.max(...allDates));
-        const today = new Date();
-        const endDateForCalc = latestDate > today ? latestDate : today; // If travel is ongoing, use today. Otherwise, use last recorded date.
+    // Set both dates to UTC midnight to avoid timezone issues when calculating days
+    fixedStartDate.setUTCHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
-        const timeDiff = Math.abs(endDateForCalc.getTime() - earliestDate.getTime());
-        const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        daysOnRoadEl.textContent = days + ' days';
-    } else {
-        daysOnRoadEl.textContent = 'N/A';
-    }
+    // Calculate the difference in milliseconds
+    const timeDiff = Math.abs(today.getTime() - fixedStartDate.getTime());
 
+    // Convert milliseconds to days
+    // Math.ceil ensures partial days count as a full day (e.g., if you started yesterday, it's 1 day)
+    const days = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    // Nr of Flights Taken
+    daysOnRoadEl.textContent = days + ' days';
+    // --- End: MODIFIED SECTION FOR DAYS ON THE ROAD ---
+
+    // Nr of Flights Taken (this should still work)
     const flights = transportData.filter(t => t['type of transport'] && t['type of transport'].toLowerCase() === 'flight');
     flightsTakenEl.textContent = flights.length;
+
+    // Different Places of Stay
+    const uniqueLocations = new Set(accommodationData.map(acc => acc.location).filter(Boolean));
+    uniquePlacesEl.textContent = uniqueLocations.size;
+
+    // Average Price per Night
+    let totalNights = 0;
+    let totalAccommodationCost = 0;
+    accommodationData.forEach(acc => {
+        const nights = calculateNights(acc.check_in, acc.check_out);
+        if (nights > 0 && acc.price) {
+            totalNights += nights;
+            totalAccommodationCost += acc.price;
+        }
+    });
+
+    if (totalNights > 0) {
+        avgPricePerNightEl.textContent = (totalAccommodationCost / totalNights).toFixed(2) + ' €';
+    } else {
+        avgPricePerNightEl.textContent = 'N/A';
+    }
+
+    // Populate tables after stats (optional, but good for sequential loading)
+    populateAccommodationTable(accommodationData);
+    populateTransportTable(transportData);
+}
 
     // Different Places of Stay
     const uniqueLocations = new Set(accommodationData.map(acc => acc.location).filter(Boolean));
