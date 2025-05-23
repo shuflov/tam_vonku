@@ -54,7 +54,7 @@ async function getUniquePlacesCount() {
 
         const allPlaces = data.map(item => item.accommodationName);
         const uniquePlacesSet = new Set(allPlaces);
-        const uniquePlacesCount = uniquePlacessSet.size;
+        const uniquePlacesCount = uniquePlacesSet.size;
         document.getElementById('uniquePlaces').textContent = uniquePlacesCount; //norway
 
     } catch (err) {
