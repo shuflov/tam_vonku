@@ -10,7 +10,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const currentDate = new Date();
 
     // Calculate the difference in milliseconds
-    const timeDiff = currentDate.getTime() - startDate.getTime();
+    const timeDiff = currentDate.getTime() - startDate.getTime() +1;
 
     // Convert milliseconds to days
     // 1 day = 24 hours * 60 minutes * 60 seconds * 1000 milliseconds
