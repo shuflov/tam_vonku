@@ -36,29 +36,32 @@ async function getFlightCount() {
 
 //unique places
 async function getUniquePlacesCount() {
-        try {
-            // Select the 'location' column and request distinct values
-            const { data, error } = await supabaseClient
-                .from('cost_accommodation')
-                .select('location', { distinct: true }); // Request only unique 'location' values
+    try {
+        const { data, error } = await supabaseClient
+            .from('cost_accommodation')
+            .select('accommodation name'); 
 
-            if (error) {
-                console.error('Error fetching unique places:', error.message);
-                document.getElementById('uniquePlaces').textContent = 'Error!';
-                return;
-            }
-
-            // The 'data' array will contain objects like [{ location: "Paris" }, { location: "Rome" }]
-            // The number of unique places is simply the length of this array
-            const uniqueCount = data.length;
-
-            document.getElementById('uniquePlaces').textContent = uniqueCount;
-
-        } catch (err) {
-            console.error('An unexpected error occurred while fetching unique places:', err);
+        if (error) {
+            console.error('Error fetching all places for unique count:', error.message);
             document.getElementById('uniquePlaces').textContent = 'Error!';
+            return;
         }
+
+        if (!data || data.length === 0) {
+            document.getElementById('uniquePlaces').textContent = 0;
+            return;
+        }
+
+        const allPlaces = data.map(item => item.accommodation_name);
+        const uniquePlacesSet = new Set(allPlaces);
+        const uniquePlacesCount = uniquePlacessSet.size;
+        document.getElementById('uniquePlaces').textContent = uniquePlacesCount; //norway
+
+    } catch (err) {
+        console.error('An unexpected error occurred while processing unique places:', err);
+        document.getElementById('uniquePlaces').textContent = 'Error!';
     }
+}
     getUniquePlacesCount();
 
 //number of visited countries
