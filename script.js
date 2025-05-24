@@ -93,3 +93,44 @@ async function getUniqueCountriesCount() {
     }
 }
 getUniqueCountriesCount();
+
+// average price per person per night - whole trip
+    async function calculateAveragePricePerNight() {
+  // Step 1: Wait for daysOnRoad to be filled
+  const daysElem = document.getElementById('daysOnRoad')
+  
+  // Wait until daysOnRoad has a number (optional retry loop for dynamic pages)
+  let days = null
+  for (let i = 0; i < 10; i++) {
+    const parsed = parseInt(daysElem.textContent)
+    if (!isNaN(parsed)) {
+      days = parsed
+      break
+    }
+    await new Promise(r => setTimeout(r, 300)) // wait 300ms
+  }
+
+  if (!days || days <= 0) {
+    document.getElementById('avgPricePerNight').textContent = 'N/A'
+    return
+  }
+
+  // Step 2: Fetch total cost
+  const { data, error } = await supabaseClient
+    .from('cost_accommodation')
+    .select('"total price of stay"')
+
+  if (error) {
+    console.error('Error fetching data:', error)
+    document.getElementById('avgPricePerNight').textContent = 'Error'
+    return
+  }
+
+  // Step 3: Calculate total cost
+  const totalSpent = data.reduce((sum, entry) => sum + (entry["total price of stay"] || 0), 0)
+  const avgPrice = (totalSpent / days).toFixed(2)
+
+  document.getElementById('avgPricePerNight').textContent = `€ ${avgPrice/2}`
+}
+
+calculateAveragePricePerNight()
