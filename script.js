@@ -208,3 +208,62 @@ if (grouped['slovakia']) {
 document.addEventListener('DOMContentLoaded', () => {
   calculateAvgPerCountry()
 })
+
+async function calculateWorkawayProjects() {
+  const container = document.getElementById('workaway')
+  if (!container) return
+
+  const { data, error } = await supabaseClient
+    .from('cost_accommodation')
+    .select('country, location, platform, nights')
+
+  if (error) {
+    console.error('Error fetching Workaway data:', error)
+    container.textContent = 'Error'
+    return
+  }
+
+  // Group by unique location+country
+  const projects = {}
+
+  for (const entry of data) {
+    if (entry.platform?.toLowerCase() !== 'workaway') continue
+    const country = entry.country || 'Unknown'
+    const location = entry.location?.trim() || 'Unknown'
+    const nights = entry.nights || 0
+
+    const key = `${country}___${location}`
+
+    if (!projects[key]) {
+      projects[key] = { country, location, nights: 0 }
+    }
+
+    projects[key].nights += nights
+  }
+
+  const rows = Object.values(projects).map(p => `
+    <tr>
+      <td>${p.country}</td>
+      <td>${p.location}</td>
+      <td style="text-align:right;">${p.nights}</td>
+    </tr>
+  `)
+
+  container.innerHTML = `
+    <p><strong>Total Workaway Projects:</strong> ${rows.length}</p>
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Location</th>
+          <th>Days Spent</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.join('')}
+      </tbody>
+    </table>
+  `
+}
+
+calculateWorkawayProjects()
