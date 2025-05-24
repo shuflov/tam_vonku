@@ -53,7 +53,7 @@ table, th, td {
         }
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 5px;
     justify-content: center;
 }
