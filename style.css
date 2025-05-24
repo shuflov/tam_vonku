@@ -1,67 +1,112 @@
-        body {
-            background-color: black;
-            color: aliceblue;
-        }
+body {
+  background-color: black;
+  color: aliceblue;
+  font-family: Arial, sans-serif; /* Added for better typography */
+  margin: 0; /* Remove default margin for full-screen use */
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto; /* Center content */
+  padding: 10px; /* Add padding for mobile */
+  text-align: center;
+}
+
 footer {
   text-align: center;
-  padding: 5px 0;
+  padding: 10px; /* Increased padding for mobile */
   background-color: black;
-  border:1px solid #3498DB;
+  border: 1px solid #3498db;
   border-radius: 8px;
   color: aliceblue;
-    margin: 10px;
+  margin: 10px;
 }
-  table {
-  width: 95%; /* Tabuľka sa roztiahne na celú šírku kontajnera */
-  border-collapse: collapse; /* Zlúči okraje buniek */
-  margin-bottom: 8px; /* Pridá medzeru pod tabuľku */
+
+/* Table styling */
+.table-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling on mobile if needed */
+}
+
+table {
+  width: 95%;
+  border-collapse: collapse;
+  margin: 10px auto; /* Center table with margin */
+  background-color: #1a1a1a; /* Dark background to match theme */
+  color: aliceblue; /* Light text for contrast */
 }
 
 th, td {
-  border: 1px solid black; 
+  border: 1px solid #3498db; /* Blue border for consistency */
   padding: 8px;
-  text-align: center; 
-  background-color: aliceblue;
-  color: black;
+  text-align: center;
+  font-size: 16px; /* Base font size */
 }
-
 
 th {
-  background-color: #3498DB;
+  background-color: #3498db; /* Blue header */
   font-weight: bold;
+  color: aliceblue; /* Ensure readable text */
 }
 
-table, th, td {
-    font-weight: normal;
-    text-align: left;
-    vertical-align: top;
-    border-collapse: collapse;
-    text-align: center;
-}
+/* Stat cards */
 .stat-card, #cost-data {
-    border:1px solid #3498DB;
-    border-radius: 8px;
-    padding:10px;
-    ax-width:260px;
-    text-align: center;
-    margin: 10px;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  padding: 10px;
+  max-width: 100%; /* Fluid width instead of fixed 260px */
+  text-align: center;
+  margin: 10px;
+  background-color: #1a1a1a; /* Dark background for cards */
 }
-        .stat-card:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: scale(1.03);
-            cursor: pointer;
-        }
+
+/* Disable hover on mobile, enable on desktop */
+@media (hover: hover) {
+  .stat-card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.03);
+    cursor: pointer;
+  }
+}
+
+/* Grid for stat cards */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns on desktop */
+  gap: 10px; /* Increased gap for clarity */
+  justify-content: center;
+  padding: 0 10px;
 }
-        .table-container {
-            display: flex;
-            justify-content: center;
-        }
-        main {
-            text-align: center;
-            max-width: 1100px;
-        }
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically on mobile */
+    gap: 15px; /* More spacing for touch targets */
+  }
+
+  table {
+    font-size: 14px; /* Smaller font for mobile */
+    min-width: 300px; /* Ensure table doesn’t shrink too much */
+  }
+
+  th, td {
+    padding: 6px; /* Slightly smaller padding on mobile */
+  }
+
+  main {
+    padding: 5px; /* Less padding on mobile */
+  }
+
+  .stat-card, #cost-data {
+    margin: 5px; /* Less margin on mobile */
+    padding: 8px;
+  }
+
+  footer {
+    margin: 5px; /* Less margin on mobile */
+    padding: 8px;
+  }
+}
