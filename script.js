@@ -8,13 +8,59 @@ const startDate = new Date('2024-01-28'); // YYYY-MM-DD format is best for consi
     const daysOnRoad = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     document.getElementById('daysOnRoad').textContent = daysOnRoad + 1;
 
-// Helper function to update DOM text content safely
+// Helper function (from previous response, for consistency)
 const updateText = (id, value) => {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
 };
 
-// Fetch unique accommodation and country counts
+// Display flight count and table
+async function getFlightCount() {
+  const container = document.getElementById('numberOfFlights');
+  if (!container) return;
+
+  // Fetch count of flights
+  const { count } = await supabaseClient
+    .from('cost_transport')
+    .select('*', { count: 'exact', head: true })
+    .eq('type of transport', 'flight');
+
+  // Fetch flight details
+  const { data } = await supabaseClient
+    .from('cost_transport')
+    .select('from, to, price')
+    .eq('type of transport', 'flight');
+
+  updateText('numberOfFlights', count || '0');
+
+  if (!data?.length) {
+    container.innerHTML += '<p>No flights found.</p>';
+    return;
+  }
+
+  const rows = data.map(flight => `
+    <tr>
+      <td>${flight.from || 'Unknown'}</td>
+      <td>${flight.to || 'Unknown'}</td>
+      <td>€${(flight.price || 0).toFixed(2)}</td>
+    </tr>
+  `);
+
+  container.innerHTML += `
+    <table>
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>To</th>
+          <th>Price per Person</th>
+        </tr>
+      </thead>
+      <tbody>${rows.join('')}</tbody>
+    </table>
+  `;
+}
+
+// Existing functions (unchanged from simplified version)
 async function getUniqueAccommodationData() {
   const { data } = await supabaseClient
     .from('cost_accommodation')
@@ -30,10 +76,9 @@ async function getUniqueAccommodationData() {
   const uniqueCountries = new Set(data.map(item => item.country)).size;
 
   updateText('uniquePlaces', uniquePlaces);
-  updateText('country', uniqueCountries + 1); // Keep your +1 logic
+  updateText('country', uniqueCountries + 1);
 }
 
-// Calculate average price per night
 async function calculateAveragePricePerNight() {
   const daysElem = document.getElementById('daysOnRoad');
   let days = null;
@@ -59,7 +104,6 @@ async function calculateAveragePricePerNight() {
   updateText('avgPricePerNight', `€${(totalSpent / days / 2).toFixed(2)}`);
 }
 
-// Calculate average price per country
 async function calculateAvgPerCountry() {
   const container = document.getElementById('avgPricePerNightCountryTable');
   if (!container) return;
@@ -81,7 +125,6 @@ async function calculateAvgPerCountry() {
     return acc;
   }, {});
 
-  // Apply adjustments
   for (const [country, nights] of Object.entries(countryAdjustments)) {
     if (grouped[country]) {
       grouped[country].totalNights = Math.max(0, grouped[country].totalNights - nights);
@@ -110,7 +153,6 @@ async function calculateAvgPerCountry() {
   `;
 }
 
-// Calculate Workaway projects
 async function calculateWorkawayProjects() {
   const container = document.getElementById('workaway');
   if (!container) return;
@@ -157,27 +199,5 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateAveragePricePerNight();
   calculateAvgPerCountry();
   calculateWorkawayProjects();
+  getFlightCount(); // Updated function
 });
-
-async function getFlightCount() {
-        try {
-            const { count, error } = await supabaseClient
-                .from('cost_transport')
-                .select('*', { count: 'exact', head: true }) 
-                .eq('type of transport', 'flight'); 
-
-            if (error) {
-                console.error('Error fetching flight count:', error.message);
-                document.getElementById('numberOfFlights').textContent = 'Error!';
-                return;
-            }
-
-            document.getElementById('numberOfFlights').textContent = count;
-
-        } catch (err) {
-            console.error('An unexpected error occurred:', err);
-            document.getElementById('numberOfFlights').textContent = 'Error!';
-        }
-    }
-
-    getFlightCount();
