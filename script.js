@@ -134,3 +134,77 @@ getUniqueCountriesCount();
 }
 
 calculateAveragePricePerNight()
+
+
+async function calculateAvgPerCountry() {
+  const container = document.getElementById('avgPricePerNightCountryTable')
+  if (!container) {
+    console.warn('Missing element #avgPricePerNightCountryTable')
+    return
+  }
+
+  const { data, error } = await supabaseClient
+    .from('cost_accommodation')
+    .select('"total price of stay", country, nights')
+
+  if (error) {
+    console.error('Error fetching data:', error)
+    container.textContent = 'Error'
+    return
+  }
+
+  const grouped = {}
+    for (const entry of data) {
+  const country = entry.country || 'Unknown'
+  const price = entry["total price of stay"] || 0
+  const nights = entry.nights || 0
+
+  if (!grouped[country]) {
+    grouped[country] = { totalPrice: 0, totalNights: 0 }
+  }
+
+  grouped[country].totalPrice += price
+  grouped[country].totalNights += nights
+}
+
+if (grouped['sri lanka']) {
+  grouped['sri lanka'].totalNights = Math.max(0, grouped['sri lanka'].totalNights - 11)
+}
+
+if (grouped['south korea']) {
+  grouped['south korea'].totalNights = Math.max(0, grouped['south korea'].totalNights - 11)
+}
+
+if (grouped['slovakia']) {
+  grouped['slovakia'].totalNights = Math.max(0, grouped['slovakia'].totalNights - 1)
+}
+    
+  const rows = Object.entries(grouped).map(([country, stats]) => {
+    const nights = stats.totalNights
+    const avg = nights > 0 ? (stats.totalPrice / nights).toFixed(2) : 'N/A'
+    return `<tr>
+      <td>${country}</td>
+      <td>${nights}</td>
+      <td>€${avg/2}</td>
+    </tr>`
+  })
+
+  container.innerHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Nights</th>
+          <th>Avg Price per Person</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.join('')}
+      </tbody>
+    </table>
+  `
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  calculateAvgPerCountry()
+})
