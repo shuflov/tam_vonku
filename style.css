@@ -61,6 +61,22 @@ th {
   margin: 10px;
   background-color: #1a1a1a; /* Dark background for cards */
 }
+.stat-card h3 {
+    font-size: 1.1em;
+    color: #8fbcd4;
+    margin-bottom: 6px;
+    font-weight: normal;
+}
+
+.stat-number, #daysOnRoad {
+    font-size: 2.4em;
+    font-weight: bold;
+    color: #fff;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(52,152,219,0.15); /* Optional: subtle glow */
+}
 
 /* Disable hover on mobile, enable on desktop */
 @media (hover: hover) {
