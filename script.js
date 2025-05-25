@@ -55,7 +55,7 @@ async function getFlightCount() {
           <th>Price per Person</th>
         </tr>
       </thead>
-      <tbody>$ {rows.join('')}</tbody>
+      <tbody>${rows.join('')}</tbody>
     </table>
   `;
 }
@@ -101,7 +101,7 @@ async function calculateAveragePricePerNight() {
     .select('"total price of stay"');
 
   const totalSpent = data.reduce((sum, entry) => sum + (entry["total price of stay"] || 0), 0);
-  updateText('avgPricePerNight', `€${(totalSpent / days / 2).toFixed(2)}`);
+  updateText('avgPricePerNight', `€ ${(totalSpent / days / 2).toFixed(2)}`);
 }
 
 async function calculateAvgPerCountry() {
