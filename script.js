@@ -179,7 +179,7 @@ async function calculateWorkawayProjects() {
   `);
 
   container.innerHTML = `
-    <p>${rows.length}</p>
+    <p class="stat-number">${rows.length}</p>
     <table>
       <thead>
         <tr>
