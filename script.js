@@ -42,7 +42,7 @@ async function getFlightCount() {
     <tr>
       <td>${flight.from || 'Unknown'}</td>
       <td>${flight.to || 'Unknown'}</td>
-      <td>€${(flight.price || 0).toFixed(2)}</td>
+      <td>€ ${(flight.price || 0).toFixed(2)}</td>
     </tr>
   `);
 
@@ -55,7 +55,7 @@ async function getFlightCount() {
           <th>Price per Person</th>
         </tr>
       </thead>
-      <tbody>${rows.join('')}</tbody>
+      <tbody>$ {rows.join('')}</tbody>
     </table>
   `;
 }
@@ -135,7 +135,7 @@ async function calculateAvgPerCountry() {
     <tr>
       <td>${country}</td>
       <td>${totalNights}</td>
-      <td>€${totalNights > 0 ? (totalPrice / totalNights / 2).toFixed(2) : 'N/A'}</td>
+      <td>€ ${totalNights > 0 ? (totalPrice / totalNights / 2).toFixed(2) : 'N/A'}</td>
     </tr>
   `);
 
