@@ -47,7 +47,7 @@ async function getFlightCount() {
   `);
 
   container.innerHTML += `
-    <table>
+    <table style="font-family: Arial, sans-serif;">
       <thead>
         <tr>
           <th>From</th>
