@@ -28,6 +28,7 @@ footer {
   justify-content: center;
   width: 100%;
   overflow-x: auto; /* Allow horizontal scrolling on mobile if needed */
+  font-family: Arial, sans-serif;
 }
 
 table {
@@ -36,6 +37,7 @@ table {
   margin: 10px auto; /* Center table with margin */
   background-color: #1a1a1a; /* Dark background to match theme */
   color: aliceblue; /* Light text for contrast */
+  font-family: Arial, sans-serif;
 }
 
 th, td {
