@@ -14,12 +14,12 @@ main {
 
 footer {
   text-align: center;
-  padding: 10px; /* Increased padding for mobile */
+  padding: 8px; /* Increased padding for mobile */
   background-color: black;
   border: 1px solid #3498db;
   border-radius: 8px;
   color: aliceblue;
-  margin: 10px;
+  margin: 8px;
 }
 
 /* Table styling */
@@ -117,13 +117,13 @@ th {
     padding: 5px; /* Less padding on mobile */
   }
 
-  .stat-card, #cost-data {
-    margin: 5px; /* Less margin on mobile */
+ /* .stat-card, #cost-data {
+    margin: 5px; 
     padding: 8px;
   }
 
   footer {
-    margin: 5px; /* Less margin on mobile */
+    margin: 5px; 
     padding: 8px;
-  }
+  }*/
 }
