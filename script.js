@@ -1,6 +1,3 @@
-const SUPABASE_URL = 'SUPABASE_URL_REMOVED';
-const SUPABASE_KEY = 'SUPABASE_KEY_REDACTED';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const startDate = new Date('2024-01-28'); // YYYY-MM-DD format is best for consistency
     const currentDate = new Date();
@@ -14,7 +11,7 @@ const updateText = (id, value) => {
   if (element) element.textContent = value;
 };
 
-// Display flight count and table
+// Display flight count (flight details moved to flightDetails.js)
 async function getFlightCount() {
   const container = document.getElementById('numberOfFlights');
   if (!container) return;
@@ -25,39 +22,7 @@ async function getFlightCount() {
     .select('*', { count: 'exact', head: true })
     .eq('type of transport', 'flight');
 
-  // Fetch flight details
-  const { data } = await supabaseClient
-    .from('cost_transport')
-    .select('from, to, price')
-    .eq('type of transport', 'flight');
-
   updateText('numberOfFlights', count || '0');
-
-  if (!data?.length) {
-    container.innerHTML += '<p>No flights found.</p>';
-    return;
-  }
-
-  const rows = data.map(flight => `
-    <tr>
-      <td>${flight.from || 'Unknown'}</td>
-      <td>${flight.to || 'Unknown'}</td>
-      <td>€ ${(flight.price || 0).toFixed(2)}</td>
-    </tr>
-  `);
-
-  container.innerHTML += `
-    <table style="font-family: Arial, sans-serif;">
-      <thead>
-        <tr>
-          <th>From</th>
-          <th>To</th>
-          <th>Price per Person</th>
-        </tr>
-      </thead>
-      <tbody>${rows.join('')}</tbody>
-    </table>
-  `;
 }
 
 // Existing functions (unchanged from simplified version)
@@ -200,4 +165,85 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateAvgPerCountry();
   calculateWorkawayProjects();
   getFlightCount(); // Updated function
+});
+
+
+const SUPABASE_URL = 'SUPABASE_URL_REMOVED';
+const SUPABASE_KEY = 'SUPABASE_KEY_REDACTED';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleButton = document.getElementById('toggleFlightDetails');
+    const flightDetailsContainer = document.getElementById('flightDetailsContainer');
+
+    // Function to fetch and display flight details
+    async function fetchAndDisplayFlightDetails() {
+        // Ensure supabaseClient is accessible. If script.js loads after this,
+        // you might need to re-initialize or ensure global scope.
+        // For this example, we assume it's globally available.
+        if (typeof supabaseClient === 'undefined') {
+            console.error('Supabase client is not defined. Make sure script.js loads first.');
+            return;
+        }
+
+        const { data, error } = await supabaseClient
+            .from('cost_transport')
+            .select('from, to, price')
+            .eq('type of transport', 'flight');
+
+        if (error) {
+            console.error('Error fetching flight details:', error.message);
+            flightDetailsContainer.innerHTML = '<p>Error loading flight details.</p>';
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            flightDetailsContainer.innerHTML = '<p>No flight details found.</p>';
+            return;
+        }
+
+        const rows = data.map(flight => `
+            <tr>
+                <td>${flight.from || 'Unknown'}</td>
+                <td>${flight.to || 'Unknown'}</td>
+                <td>€ ${(flight.price || 0).toFixed(2)}</td>
+            </tr>
+        `);
+
+        flightDetailsContainer.innerHTML = `
+            <div class="table-container">
+                <table style="font-family: Arial, sans-serif;">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Price per Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows.join('')}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Event listener for the toggle button
+    if (toggleButton && flightDetailsContainer) {
+        toggleButton.addEventListener('click', () => {
+            if (flightDetailsContainer.style.display === 'none') {
+                // If currently hidden, show and fetch details
+                flightDetailsContainer.style.display = 'block';
+                toggleButton.textContent = 'Hide Details';
+                // Only fetch details if the container is empty (first time showing)
+                if (!flightDetailsContainer.innerHTML.trim()) {
+                    fetchAndDisplayFlightDetails();
+                }
+            } else {
+                // If currently visible, hide
+                flightDetailsContainer.style.display = 'none';
+                toggleButton.textContent = 'Show Details';
+            }
+        });
+    } else {
+        console.error('Toggle button or flight details container not found.');
+    }
 });
