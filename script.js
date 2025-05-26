@@ -1,4 +1,3 @@
-
 const startDate = new Date('2024-01-28'); // YYYY-MM-DD format is best for consistency
     const currentDate = new Date();
     const timeDiff = currentDate.getTime() - startDate.getTime();
@@ -23,6 +22,33 @@ async function getFlightCount() {
     .eq('type of transport', 'flight');
 
   updateText('numberOfFlights', count || '0');
+}
+
+async function getWorkawayCount() {
+  const container = document.getElementById('workaway');
+  if (!container) return;
+
+  // Fetch all workaway entries to count unique locations
+  const { data, error } = await supabaseClient
+    .from('cost_accommodation')
+    .select('location') // Only need the location column
+    .eq('platform', 'workaway');
+
+  if (error) {
+    console.error('Error fetching workaway data for unique count:', error.message);
+    updateText('workaway', 'N/A');
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    updateText('workaway', '0');
+    return;
+  }
+
+  // Get unique locations using a Set
+  const uniqueLocations = new Set(data.map(entry => entry.location)).size;
+
+  updateText('workaway', uniqueLocations || '0');
 }
 
 // Existing functions (unchanged from simplified version)
@@ -118,53 +144,14 @@ async function calculateAvgPerCountry() {
   `;
 }
 
-async function calculateWorkawayProjects() {
-  const container = document.getElementById('workaway');
-  if (!container) return;
-
-  const { data } = await supabaseClient
-    .from('cost_accommodation')
-    .select('country, location, platform, nights');
-
-  const projects = data
-    .filter(entry => entry.platform?.toLowerCase() === 'workaway')
-    .reduce((acc, { country = 'Unknown', location = 'Unknown', nights = 0 }) => {
-      const key = `${country}___${location}`;
-      acc[key] = acc[key] || { country, location, nights: 0 };
-      acc[key].nights += nights;
-      return acc;
-    }, {});
-
-  const rows = Object.values(projects).map(p => `
-    <tr>
-      <td>${p.country}</td>
-      <td>${p.location}</td>
-      <td>${p.nights}</td>
-    </tr>
-  `);
-
-  container.innerHTML = `
-    <p class="stat-number">${rows.length}</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Country</th>
-          <th>Location</th>
-          <th>Days Spent</th>
-        </tr>
-      </thead>
-      <tbody>${rows.join('')}</tbody>
-    </table>
-  `;
-}
 
 // Initialize all functions
 document.addEventListener('DOMContentLoaded', () => {
   getUniqueAccommodationData();
   calculateAveragePricePerNight();
   calculateAvgPerCountry();
-  calculateWorkawayProjects();
-  getFlightCount(); // Updated function
+  getFlightCount();
+  getWorkawayCount(); 
 });
 
 
@@ -247,3 +234,89 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Toggle button or flight details container not found.');
     }
 });
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle2Button = document.getElementById('toggleWorkawayDetails');
+    const workawayDetailsContainer = document.getElementById('workawayDetailsContainer');
+
+    // Function to fetch and display flight details
+    async function fetchAndDisplayWorkawayDetails() {
+
+        if (typeof supabaseClient === 'undefined') {
+            console.error('Supabase client is not defined. Make sure script.js loads first.');
+            return;
+        }
+
+        const { data, error } = await supabaseClient
+            .from('cost_accommodation')
+            .select('country, nights, location')
+            .eq('platform', 'workaway');
+
+        if (error) {
+            console.error('Error fetching flight details:', error.message);
+            workawayDetailsContainer.innerHTML = '<p>Error loading workaway details.</p>';
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            workawayDetailsContainer.innerHTML = '<p>No workaway details found.</p>';
+            return;
+        }
+
+// Aggregate data by country and location
+        const aggregatedProjects = data.reduce((acc, { country = 'Unknown', location = 'Unknown', nights = 0 }) => {
+            const key = `${country}___${location}`; // Create a unique key for each country-location pair
+            acc[key] = acc[key] || { country, location, totalNights: 0 }; // Initialize if not exists
+            acc[key].totalNights += nights; // Sum the nights
+            return acc;
+        }, {});
+
+        // Convert the aggregated object back to an array for mapping to table rows
+        const rows = Object.values(aggregatedProjects).map(p => `
+            <tr>
+                <td>${p.country}</td>
+                <td>${p.location}</td>
+                <td>${p.totalNights}</td>
+            </tr>
+        `);
+
+        workawayDetailsContainer.innerHTML = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>country</th>
+                            <th>location</th>
+                            <th>days</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows.join('')}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Event listener for the toggle button
+    if (toggle2Button && workawayDetailsContainer) {
+        toggle2Button.addEventListener('click', () => {
+            if (workawayDetailsContainer.style.display === 'none') {
+                // If currently hidden, show and fetch details
+                workawayDetailsContainer.style.display = 'block';
+                toggle2Button.textContent = 'Hide Details';
+                // Only fetch details if the container is empty (first time showing)
+                if (!workawayDetailsContainer.innerHTML.trim()) {
+                    fetchAndDisplayWorkawayDetails();
+                }
+            } else {
+                // If currently visible, hide
+                workawayDetailsContainer.style.display = 'none';
+                toggle2Button.textContent = 'Show Details';
+            }
+        });
+    } else {
+        console.error('Toggle button or workaway details container not found.');
+    }
+});
+
