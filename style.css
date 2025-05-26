@@ -97,6 +97,23 @@ th {
   padding: 0 10px;
 }
 
+/* Style for the new detail button */
+.detail-button {
+  background-color: #3498db;
+  color: aliceblue;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+.detail-button:hover {
+  background-color: #2980b9; /* Darker blue on hover */
+}
+
 /* Mobile adjustments */
 @media (max-width: 600px) {
   .stats-grid {
@@ -116,14 +133,4 @@ th {
   main {
     padding: 5px; /* Less padding on mobile */
   }
-
- /* .stat-card, #cost-data {
-    margin: 5px; 
-    padding: 8px;
-  }
-
-  footer {
-    margin: 5px; 
-    padding: 8px;
-  }*/
 }
