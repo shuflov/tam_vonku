@@ -318,5 +318,26 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('Toggle button or workaway details container not found.');
     }
-});
+//});
 
+    // Event listener for the toggle button
+    if (toggleAPN && avgPricePerNightCountryTable) {
+        toggleAPN.addEventListener('click', () => {
+            if (avgPricePerNightCountryTable.style.display === 'none') {
+                // If currently hidden, show and fetch details
+                avgPricePerNightCountryTable.style.display = 'block';
+                toggleAPN.textContent = 'Hide Details';
+                // Only fetch details if the container is empty (first time showing)
+                if (!avgPricePerNightCountryTable.innerHTML.trim()) {
+                    fetchAndDisplayAvgPricePerNightCountryTable();
+                }
+            } else {
+                // If currently visible, hide
+                avgPricePerNightCountryTable.style.display = 'none';
+                toggleAPN.textContent = 'Show Details';
+            }
+        });
+    } else {
+        console.error('Toggle button or APN details container not found.');
+    }
+});
