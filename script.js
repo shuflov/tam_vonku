@@ -55,7 +55,7 @@ async function getWorkawayCount() {
 async function getUniqueAccommodationData() {
   const { data } = await supabaseClient
     .from('cost_accommodation')
-    .select('accommodationName, country');
+    .select('accommodation, country');
 
   if (!data?.length) {
     updateText('uniquePlaces', '0');
@@ -63,7 +63,7 @@ async function getUniqueAccommodationData() {
     return;
   }
 
-  const uniquePlaces = new Set(data.map(item => item.accommodationName)).size;
+  const uniquePlaces = new Set(data.map(item => item.accommodation)).size;
   const uniqueCountries = new Set(data.map(item => item.country)).size;
 
   updateText('uniquePlaces', uniquePlaces);
