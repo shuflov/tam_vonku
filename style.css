@@ -82,7 +82,7 @@ th {
 /* Disable hover on mobile, enable on desktop */
 @media (hover: hover) {
   .stat-card:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
     transform: scale(1.03);
     cursor: pointer;
   }
@@ -99,8 +99,8 @@ th {
 
 /* Style for the new detail button */
 .detail-button {
-  background-color: #3498db;
-  color: aliceblue;
+      background-color: lightblue;
+    color: black;
   border: none;
   border-radius: 5px;
   padding: 8px 15px;
@@ -111,7 +111,9 @@ th {
 }
 
 .detail-button:hover {
-  background-color: #2980b9; /* Darker blue on hover */
+  background-color: #3498db;
+  color: aliceblue;
+    transform: scale(1.03);
 }
 
 /* Mobile adjustments */
