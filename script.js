@@ -145,12 +145,6 @@ async function calculateAvgPerCountry() {
   `;
 }
 
-// Supabase Client Initialization (should be at a global or accessible scope)
-const SUPABASE_URL = 'SUPABASE_URL_REMOVED';
-const SUPABASE_KEY = 'SUPABASE_KEY_REDACTED';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-
 // Function to fetch and display flight details
 async function fetchAndDisplayFlightDetails() {
   const flightDetailsContainer = document.getElementById('flightDetailsContainer');
