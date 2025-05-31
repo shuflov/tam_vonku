@@ -296,7 +296,7 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
 
     if (!isNorwayFetched) {
 
-        combinedCountries.push({ id: 50, country: 'norway' });
+        combinedCountries.push({ id: 50, country: 'Norway' });
     }
 
     combinedCountries.sort((a, b) => {
