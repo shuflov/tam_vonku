@@ -162,8 +162,9 @@ async function fetchAndDisplayFlightDetails() {
 
   const { data, error } = await supabaseClient
     .from('cost_transport')
-    .select('from, to, price')
+    .select('from, to, price, id')
     .eq('type of transport', 'flight');
+  .order('id', { ascending: true });
 
   if (error) {
     console.error('Error fetching flight details:', error.message);
