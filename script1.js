@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data, error } = await supabaseClient
             .from('cost_other')
-            .select('description, cost, note, category, average');
+            .select('description, cost, note, category, average, id')
+        .order('id', { ascending: true });
 
         if (error) {
             console.error('Error fetching data:', error.message);
