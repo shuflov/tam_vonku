@@ -101,7 +101,8 @@ async function calculateAvgPerCountry() {
 
   const { data } = await supabaseClient
     .from('cost_accommodation')
-    .select('"total price of stay", country, nights');
+    .select('"total price of stay", country, nights, id')
+  .order('id', { ascending: true });
 
   const countryAdjustments = {
     'sri lanka': 11,
@@ -213,8 +214,9 @@ async function fetchAndDisplayWorkawayDetails() {
 
   const { data, error } = await supabaseClient
     .from('cost_accommodation')
-    .select('country, nights, location')
-    .eq('platform', 'workaway');
+    .select('country, nights, location, id')
+    .eq('platform', 'workaway')
+  .order('id', { ascending: true });
 
   if (error) {
     console.error('Error fetching workaway details:', error.message);
