@@ -168,7 +168,7 @@ async function calculateAvgPerCountry() {
         <td>${totalNights}</td>
         <td>${avgPricePerPerson !== null ? avgPricePerPerson.toFixed(2) : 'N/A'}</td>
         <td>${nightsPaid}</td>
-        <td>${avgPaidPrice !== null ? avgPaidPrice.toFixed(2) : 'N/A'}</td>
+        <td>${avgPaidPrice !== null ? avgPaidPrice.toFixed(2) : '0'}</td>
       </tr>
     `;
   });
@@ -178,10 +178,10 @@ async function calculateAvgPerCountry() {
       <thead>
         <tr>
           <th>Country</th>
-          <th>Nights<br>(total)</th>
-          <th>Avg Price<br>(all nights)</th>
-          <th>Nights<br>(paid)</th>
-          <th>Avg Price<br>(paid nights only)</th>
+          <th>Nights<br>(all)</th>
+          <th>Avg Price<br>(all)</th>
+          <th>Nights<br>(paid only)</th>
+          <th>Avg Price<br>(paid only)</th>
         </tr>
       </thead>
       <tbody>${rows.join('')}</tbody>
@@ -342,7 +342,7 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
 
     if (!isNorwayFetched) {
 
-        combinedCountries.push({ id: 50, country: 'norway' });
+        combinedCountries.push({ id: 50, country: 'Norway' });
     }
 
     combinedCountries.sort((a, b) => {
