@@ -105,9 +105,9 @@ async function calculateAvgPerCountry() {
   .order('id', { ascending: true });
 
   const countryAdjustments = {
-    'sri lanka': 11,
-    'south korea': 11,
-    'slovakia': 1
+    'Sri Lanka': 11,
+    'South Korea': 11,
+    'Slovakia': 1
   };
 
   const grouped = data.reduce((acc, { country = 'Unknown', ["total price of stay"]: price = 0, nights = 0 }) => {
