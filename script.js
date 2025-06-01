@@ -102,48 +102,94 @@ async function calculateAvgPerCountry() {
   const { data } = await supabaseClient
     .from('cost_accommodation')
     .select('"total price of stay", country, nights, id')
-  .order('id', { ascending: true });
+    .order('id', { ascending: true });
 
+  // Night reductions for total nights
   const countryAdjustments = {
-    'Sri Lanka': 11,
-    'South Korea': 11,
-    'Slovakia': 1
+    'sri lanka': 11,
+    'south korea': 11,
+    'slovakia': 1
   };
 
+  // Night reductions for nights paid
+  const paidNightsAdjustments = {
+    'sri lanka': 11,
+      'slovakia': 1
+  };
+
+  // Manual reductions on Avg Paid Price (in euros)
+  const manualAvgPaidPriceReductions = {
+    'sri lanka': 0,
+    'south korea': -2.87
+  };
+
+  // Group data by lowercase country key, store original name in displayName
   const grouped = data.reduce((acc, { country = 'Unknown', ["total price of stay"]: price = 0, nights = 0 }) => {
-    acc[country] = acc[country] || { totalPrice: 0, totalNights: 0 };
-    acc[country].totalPrice += price;
-    acc[country].totalNights += nights;
+    const countryKey = country.toLowerCase();
+    acc[countryKey] = acc[countryKey] || { totalPrice: 0, totalNights: 0, nightsPaid: 0, totalPaid: 0, displayName: country };
+    acc[countryKey].totalPrice += price;
+    acc[countryKey].totalNights += nights;
+
+    if (price > 0) {
+      acc[countryKey].nightsPaid += nights;
+      acc[countryKey].totalPaid += price;
+    }
+
     return acc;
   }, {});
 
-  for (const [country, nights] of Object.entries(countryAdjustments)) {
-    if (grouped[country]) {
-      grouped[country].totalNights = Math.max(0, grouped[country].totalNights - nights);
+  // Apply night reductions to totalNights
+  for (const [countryKey, nightsToReduce] of Object.entries(countryAdjustments)) {
+    if (grouped[countryKey]) {
+      grouped[countryKey].totalNights = Math.max(0, grouped[countryKey].totalNights - nightsToReduce);
     }
   }
 
-  const rows = Object.entries(grouped).map(([country, { totalPrice, totalNights }]) => `
-    <tr>
-      <td>${country}</td>
-      <td>${totalNights}</td>
-      <td>€ ${totalNights > 0 ? (totalPrice / totalNights / 2).toFixed(2) : 'N/A'}</td>
-    </tr>
-  `);
+  // Apply night reductions to nightsPaid
+  for (const [countryKey, nightsToReduce] of Object.entries(paidNightsAdjustments)) {
+    if (grouped[countryKey]) {
+      grouped[countryKey].nightsPaid = Math.max(0, grouped[countryKey].nightsPaid - nightsToReduce);
+    }
+  }
+
+  // Generate table rows with all columns and manual avg paid price reduction
+  const rows = Object.entries(grouped).map(([countryKey, { displayName, totalPrice, totalNights, nightsPaid, totalPaid }]) => {
+    const avgPricePerPerson = totalNights > 0 ? (totalPrice / totalNights / 2) : null;
+    let avgPaidPrice = nightsPaid > 0 ? (totalPaid / nightsPaid / 2) : null;
+
+    // Apply manual reduction if applicable
+    if (avgPaidPrice !== null && manualAvgPaidPriceReductions[countryKey]) {
+      avgPaidPrice = Math.max(0, avgPaidPrice - manualAvgPaidPriceReductions[countryKey]);
+    }
+
+    return `
+      <tr>
+        <td>${displayName}</td>
+        <td>${totalNights}</td>
+        <td>€ ${avgPricePerPerson !== null ? avgPricePerPerson.toFixed(2) : 'N/A'}</td>
+        <td>${nightsPaid}</td>
+        <td>€ ${avgPaidPrice !== null ? avgPaidPrice.toFixed(2) : 'N/A'}</td>
+      </tr>
+    `;
+  });
 
   container.innerHTML = `
     <table>
       <thead>
         <tr>
           <th>Country</th>
-          <th>Nights</th>
-          <th>Avg Price per Person</th>
+          <th>Nights<br>(total)</th>
+          <th>Avg Price<br>(all nights)</th>
+          <th>Nights<br>(paid)</th>
+          <th>Avg Price<br>(paid nights only)</th>
         </tr>
       </thead>
       <tbody>${rows.join('')}</tbody>
     </table>
   `;
 }
+
+
 
 // Function to fetch and display flight details
 async function fetchAndDisplayFlightDetails() {
@@ -296,7 +342,7 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
 
     if (!isNorwayFetched) {
 
-        combinedCountries.push({ id: 50, country: 'Norway' });
+        combinedCountries.push({ id: 50, country: 'norway' });
     }
 
     combinedCountries.sort((a, b) => {
