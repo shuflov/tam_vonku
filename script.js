@@ -166,9 +166,9 @@ async function calculateAvgPerCountry() {
       <tr>
         <td>${displayName}</td>
         <td>${totalNights}</td>
-        <td>€ ${avgPricePerPerson !== null ? avgPricePerPerson.toFixed(2) : 'N/A'}</td>
+        <td>${avgPricePerPerson !== null ? avgPricePerPerson.toFixed(2) : 'N/A'}</td>
         <td>${nightsPaid}</td>
-        <td>€ ${avgPaidPrice !== null ? avgPaidPrice.toFixed(2) : 'N/A'}</td>
+        <td>${avgPaidPrice !== null ? avgPaidPrice.toFixed(2) : 'N/A'}</td>
       </tr>
     `;
   });
