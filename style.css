@@ -13,7 +13,8 @@ main {
 }
 
 .icon5 {
-  height: 40px;
+  height: 60px;
+  background-color: lightblue;
 }
 footer {
   text-align: center;
