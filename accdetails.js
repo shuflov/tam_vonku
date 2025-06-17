@@ -17,9 +17,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     accommodations.forEach(entry => {
         const row = document.createElement("tr");
         row.innerHTML = `
+            <td>${entry.country}</td>
             <td>${entry.location}</td>
             <td>${entry["check in"]}</td>
-            <td>${entry["check out"]}</td>
             <td>${entry.nights}</td>
             <td>${entry["total price of stay"]}</td>
             <td>${entry.accommodation}</td>
