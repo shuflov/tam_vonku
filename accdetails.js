@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${entry.location}</td>
-            <td>${entry.checkIn}</td>
+            <td>${entry["check in"]}</td>
             <td>${entry.checkOut}</td>
             <td>${entry.nights}</td>
             <td>${entry.totalPriceOfStay}</td>
