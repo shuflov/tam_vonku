@@ -19,9 +19,9 @@ document.addEventListener("DOMContentLoaded", async function() {
         row.innerHTML = `
             <td>${entry.location}</td>
             <td>${entry["check in"]}</td>
-            <td>${entry.checkOut}</td>
+            <td>${entry["check out"]}</td>
             <td>${entry.nights}</td>
-            <td>${entry.totalPriceOfStay}</td>
+            <td>${entry["total price of stay"]}</td>
             <td>${entry.accommodation}</td>
         `;
         tbody.appendChild(row);
