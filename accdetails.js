@@ -18,11 +18,11 @@ document.addEventListener("DOMContentLoaded", async function() {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${entry.location}</td>
-            <td>${entry.check_in}</td>
-            <td>${entry.check_out}</td>
+            <td>${entry.checkIn}</td>
+            <td>${entry.checkOut}</td>
             <td>${entry.nights}</td>
-            <td>${entry.total_price}</td>
-            <td>${entry.name}</td>
+            <td>${entry.totalPriceOfStay}</td>
+            <td>${entry.accommodation}</td>
         `;
         tbody.appendChild(row);
     });
