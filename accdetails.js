@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Fetch data
     let { data: accommodations, error } = await supabaseClient
-        .from('accommodations')
+        .from('cost_accommodation')
         .select('*')
         .order('check_in', { ascending: true });
 
