@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Fetch data
     let { data: accommodations, error } = await supabaseClient
         .from('cost_accommodation')
-        .select('*');
+        .select('*')
+     .order('id', { ascending: true });
 
 
     if (error) {
