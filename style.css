@@ -12,6 +12,9 @@ main {
   text-align: center;
 }
 
+.icon5 {
+  height: 40px;
+}
 footer {
   text-align: center;
   padding: 8px; /* Increased padding for mobile */
