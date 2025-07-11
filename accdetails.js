@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", async function() {
 
-    // Fetch data
     let { data: accommodations, error } = await supabaseClient
         .from('cost_accommodation')
         .select('*')
      .order('id', { ascending: true });
-
 
     if (error) {
         console.error(error);
