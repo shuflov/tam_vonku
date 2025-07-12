@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const avgPricePerNightCountryTable = document.getElementById('avgPricePerNightCountryTable');
   const toggleVisitedCountriesDetails = document.getElementById('toggleVisitedCountriesDetails'); // Assuming you have an ID for this toggle button
   const visitedCountriesListContainer = document.getElementById('visitedCountriesListContainer'); // Assuming you have an ID for this container
-
+  const toggleAccommodationDetails = document.getElementById('toggleAccommodationDetails');
 
   // Event listener for the flight details toggle button
   if (toggleButton && flightDetailsContainer) {
