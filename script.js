@@ -447,4 +447,21 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Toggle button or visited countries list container not found.');
   }
+
+  if (toggleAccommodationDetails && accommodationTable) {
+    toggleAccommodationDetails.addEventListener('click', () => {
+      if (accommodationTable.style.display === 'none') {
+        accommodationTable.style.display = 'block';
+        toggleAccommodationDetails.textContent = 'Hide Details';
+        if (!document.querySelector('#accommodationTable tbody').innerHTML.trim()) {
+          fetchAndDisplayAccommodationDetails();
+        }
+      } else {
+        accommodationTable.style.display = 'none';
+        toggleAccommodationDetails.textContent = 'Show Details';
+      }
+    });
+  } else {
+    console.error('Accommodation toggle button or table not found.');
+  }
 });
