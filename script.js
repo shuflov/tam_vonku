@@ -243,7 +243,7 @@ async function fetchAndDisplayFlightDetails() {
           ${rows.join('')}
         </tbody>
 <tfoot>
-  <tr style="font-weight: bold; background-color: #f0f0f0; color: #333;">
+  <tr style="font-weight: bold; background-color: darkblue; color: #white;">
     <td colspan="2">Total Price per Person</td>
     <td>€ ${totalPrice.toFixed(2)}</td>
   </tr>
@@ -314,7 +314,7 @@ async function fetchAndDisplayWorkawayDetails() {
           ${rows.join('')}
         </tbody>
         <tfoot>
-          <tr style="font-weight: bold; background-color: #f0f0f0; color: #333;">
+          <tr style="font-weight: bold; background-color: darkblue; color: white;">
             <td colspan="2">Total Days</td>
             <td>${totalDays}</td>
           </tr>
