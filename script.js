@@ -253,22 +253,6 @@ async function fetchAndDisplayFlightDetails() {
   `;
 }
 
-  flightDetailsContainer.innerHTML = `
-    <div class="table-container">
-      <table style="font-family: Arial, sans-serif;">
-        <thead>
-          <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Price per Person</th>
-          </tr>
-        </thead>
-        <tbody>${rows.join('')}</tbody>
-      </table>
-    </div>
-  `;
-}
-
 // Function to fetch and display workaway details
 async function fetchAndDisplayWorkawayDetails() {
   const workawayDetailsContainer = document.getElementById('workawayDetailsContainer');
