@@ -205,7 +205,7 @@ async function fetchAndDisplayFlightDetails() {
     .from('cost_transport')
     .select('from, to, price, id')
     .eq('type of transport', 'flight')
-  .order('id', { ascending: true });
+    .order('id', { ascending: true });
 
   if (error) {
     console.error('Error fetching flight details:', error.message);
@@ -218,6 +218,9 @@ async function fetchAndDisplayFlightDetails() {
     return;
   }
 
+  // Calculate total price per person
+  const totalPrice = data.reduce((sum, flight) => sum + (flight.price || 0), 0);
+
   const rows = data.map(flight => `
     <tr>
       <td>${flight.from || 'Unknown'}</td>
@@ -225,6 +228,30 @@ async function fetchAndDisplayFlightDetails() {
       <td>€ ${(flight.price || 0).toFixed(2)}</td>
     </tr>
   `);
+
+  flightDetailsContainer.innerHTML = `
+    <div class="table-container">
+      <table style="font-family: Arial, sans-serif;">
+        <thead>
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Price per Person</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total Price per Person</td>
+            <td>€ ${totalPrice.toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
 
   flightDetailsContainer.innerHTML = `
     <div class="table-container">
