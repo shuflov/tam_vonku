@@ -242,12 +242,12 @@ async function fetchAndDisplayFlightDetails() {
         <tbody>
           ${rows.join('')}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">Total Price per Person</td>
-            <td>€ ${totalPrice.toFixed(2)}</td>
-          </tr>
-        </tfoot>
+<tfoot>
+  <tr style="font-weight: bold; background-color: #f0f0f0; color: #333;">
+    <td colspan="2">Total Price per Person</td>
+    <td>€ ${totalPrice.toFixed(2)}</td>
+  </tr>
+</tfoot>
       </table>
     </div>
   `;
