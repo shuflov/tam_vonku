@@ -267,7 +267,7 @@ async function fetchAndDisplayWorkawayDetails() {
     .from('cost_accommodation')
     .select('country, nights, location, id')
     .eq('platform', 'workaway')
-    .order('id', { ascending: true });
+    .order('id', { ascending: false });
 
   if (error) {
     console.error('Error fetching workaway details:', error.message);
@@ -314,7 +314,7 @@ async function fetchAndDisplayWorkawayDetails() {
           ${rows.join('')}
         </tbody>
         <tfoot>
-          <tr>
+          <tr style="font-weight: bold; background-color: #f0f0f0; color: #333;">
             <td colspan="2">Total Days</td>
             <td>${totalDays}</td>
           </tr>
