@@ -205,7 +205,7 @@ async function fetchAndDisplayFlightDetails() {
     .from('cost_transport')
     .select('from, to, price, id')
     .eq('type of transport', 'flight')
-    .order('id', { ascending: true });
+    .order('id', { ascending: false });
 
   if (error) {
     console.error('Error fetching flight details:', error.message);
