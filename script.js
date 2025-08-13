@@ -256,7 +256,7 @@ async function fetchAndDisplayWorkawayDetails() {
     .from('cost_accommodation')
     .select('country, nights, location, id')
     .eq('platform', 'workaway')
-  .order('id', { ascending: true });
+    .order('id', { ascending: true });
 
   if (error) {
     console.error('Error fetching workaway details:', error.message);
@@ -277,6 +277,9 @@ async function fetchAndDisplayWorkawayDetails() {
     return acc;
   }, {});
 
+  // Calculate total days across all projects
+  const totalDays = Object.values(aggregatedProjects).reduce((sum, project) => sum + project.totalNights, 0);
+
   // Convert the aggregated object back to an array for mapping to table rows
   const rows = Object.values(aggregatedProjects).map(p => `
     <tr>
@@ -296,7 +299,15 @@ async function fetchAndDisplayWorkawayDetails() {
             <th>Days</th>
           </tr>
         </thead>
-        <tbody>${rows.join('')}</tbody>
+        <tbody>
+          ${rows.join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total Days</td>
+            <td>${totalDays}</td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   `;
