@@ -174,13 +174,16 @@
         const map = L.map('map').setView([30, 50], 2);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors',
             noWrap: true
         }).addTo(map);
+        
+        // Set world bounds to prevent infinite scrolling
         map.setMaxBounds([[-90, -180], [90, 180]]);
 
         // Store markers and polylines for highlighting
         const flightElements = [];
+
         
         // Create flight routes and markers
         flights.forEach((flight, index) => {
