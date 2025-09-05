@@ -175,7 +175,9 @@
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
+            noWrap: true
         }).addTo(map);
+        map.setMaxBounds([[-90, -180], [90, 180]]);
 
         // Store markers and polylines for highlighting
         const flightElements = [];
