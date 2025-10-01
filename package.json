@@ -1,0 +1,12 @@
+{
+  "name": "tam-vonku",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",  // Replace with your actual script filename
+  "scripts": {
+    "start": "node script.js"  // Optional: for local testing
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"  // Latest version as of now; adjust if needed
+  }
+}
