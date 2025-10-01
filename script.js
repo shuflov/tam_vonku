@@ -1,75 +1,114 @@
+// Mock DOM and Supabase for Node.js (skip in browser)
+if (typeof document === 'undefined') {
+  const { JSDOM } = require('jsdom');
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head><title>Mock Page</title></head>
+      <body>
+        <div id="daysOnRoad"></div>
+        <div id="numberOfFlights"></div>
+        <div id="workaway"></div>
+        <div id="uniquePlaces"></div>
+        <div id="country"></div>
+        <div id="avgPricePerNight"></div>
+        <div id="avgPricePerNightCountryTable"></div>
+        <div id="flightDetailsContainer" style="display:none;"></div>
+        <div id="workawayDetailsContainer" style="display:none;"></div>
+        <div id="visitedCountriesListContainer" style="display:none;"></div>
+        <div id="accommodationTable" style="display:none;"></div>
+        <button id="toggleFlightDetails">Show Details</button>
+        <button id="toggleWorkawayDetails">Show Details</button>
+        <button id="toggleAPN">Show Details</button>
+        <button id="toggleVisitedCountriesDetails">Show List Of Visited Countries</button>
+        <button id="toggleAccommodationDetails">Show Details</button>
+      </body>
+    </html>
+  `;
+  const dom = new JSDOM(html);
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  // Define Supabase for Node
+  const { createClient } = require('@supabase/supabase-js');
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_KEY;
+  global.supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);  // Make global for functions
+
+  // Dispatch DOMContentLoaded to trigger your init
+  global.document.dispatchEvent(new global.Event('DOMContentLoaded'));
+
+  // Optional: Log final values after a short delay (for CI visibility)
+  setTimeout(() => {
+    console.log('=== CI Script Output ===');
+    console.log('Days on Road:', global.document.getElementById('daysOnRoad').textContent);
+    console.log('Number of Flights:', global.document.getElementById('numberOfFlights').textContent);
+    console.log('Workaway Count:', global.document.getElementById('workaway').textContent);
+    console.log('Unique Places:', global.document.getElementById('uniquePlaces').textContent);
+    console.log('Countries:', global.document.getElementById('country').textContent);
+    console.log('Avg Price Per Night:', global.document.getElementById('avgPricePerNight').textContent);
+    console.log('=== End Output ===');
+  }, 5000);  // 5s delay for async fetches to complete
+}
+
+// Your original code (unchanged, but supabaseClient now available globally in Node)
 const startDate = new Date('2024-01-28'); // YYYY-MM-DD format is best for consistency
 const currentDate = new Date();
 const timeDiff = currentDate.getTime() - startDate.getTime();
 const daysOnRoad = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
 document.getElementById('daysOnRoad').textContent = daysOnRoad + 1;
-
 // Helper function (from previous response, for consistency)
 const updateText = (id, value) => {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
 };
-
 // Display flight count (flight details moved to flightDetails.js)
 async function getFlightCount() {
   const container = document.getElementById('numberOfFlights');
   if (!container) return;
-
   // Fetch count of flights
   const { count } = await supabaseClient
     .from('cost_transport')
     .select('*', { count: 'exact', head: true })
     .eq('type of transport', 'flight');
-
   updateText('numberOfFlights', count || '0');
 }
-
 async function getWorkawayCount() {
   const container = document.getElementById('workaway');
   if (!container) return;
-
   // Fetch all workaway entries to count unique locations
   const { data, error } = await supabaseClient
     .from('cost_accommodation')
     .select('location') // Only need the location column
     .eq('platform', 'workaway');
-
   if (error) {
     console.error('Error fetching workaway data for unique count:', error.message);
     updateText('workaway', 'N/A');
     return;
   }
-
   if (!data || data.length === 0) {
     updateText('workaway', '0');
     return;
   }
-
   // Get unique locations using a Set
   const uniqueLocations = new Set(data.map(entry => entry.location)).size;
-
   updateText('workaway', uniqueLocations || '0');
 }
-
 // Existing functions (unchanged from simplified version)
 async function getUniqueAccommodationData() {
   const { data } = await supabaseClient
     .from('cost_accommodation')
     .select('accommodation, country');
-
   if (!data?.length) {
     updateText('uniquePlaces', '0');
     updateText('country', '0');
     return;
   }
-
   const uniquePlaces = new Set(data.map(item => item.accommodation)).size;
   const uniqueCountries = new Set(data.map(item => item.country)).size;
-
   updateText('uniquePlaces', uniquePlaces);
   updateText('country', uniqueCountries + 1);
 }
-
 async function calculateAveragePricePerNight() {
   const daysElem = document.getElementById('daysOnRoad');
   let days = null;
@@ -81,87 +120,71 @@ async function calculateAveragePricePerNight() {
     }
     await new Promise(resolve => setTimeout(resolve, 300));
   }
-
   if (!days || days <= 0) {
     updateText('avgPricePerNight', 'N/A');
     return;
   }
-
   const { data } = await supabaseClient
     .from('cost_accommodation')
     .select('"total price of stay"');
-
   const totalSpent = data.reduce((sum, entry) => sum + (entry["total price of stay"] || 0), 0);
   updateText('avgPricePerNight', `€ ${(totalSpent / (days-1) / 2).toFixed(2)}`);
 }
-
 async function calculateAvgPerCountry() {
   const container = document.getElementById('avgPricePerNightCountryTable');
   if (!container) return;
-
   const { data } = await supabaseClient
     .from('cost_accommodation')
     .select('"total price of stay", country, nights, id')
     .order('id', { ascending: true });
-
   // Night reductions for total nights
   const countryAdjustments = {
     'sri lanka': 11,
     'south korea': 11,
     'slovakia': 1
   };
-
   // Night reductions for nights paid
   const paidNightsAdjustments = {
     'sri lanka': 11,
       'slovakia': 1
   };
-
   // Manual reductions on Avg Paid Price (in euros)
   const manualAvgPaidPriceReductions = {
     'sri lanka': 0,
     'south korea': -2.87
   };
-
   // Group data by lowercase country key, store original name in displayName
   const grouped = data.reduce((acc, { country = 'Unknown', ["total price of stay"]: price = 0, nights = 0 }) => {
     const countryKey = country.toLowerCase();
     acc[countryKey] = acc[countryKey] || { totalPrice: 0, totalNights: 0, nightsPaid: 0, totalPaid: 0, displayName: country };
     acc[countryKey].totalPrice += price;
     acc[countryKey].totalNights += nights;
-
     if (price > 0) {
       acc[countryKey].nightsPaid += nights;
       acc[countryKey].totalPaid += price;
     }
-
     return acc;
   }, {});
-
   // Apply night reductions to totalNights
   for (const [countryKey, nightsToReduce] of Object.entries(countryAdjustments)) {
     if (grouped[countryKey]) {
       grouped[countryKey].totalNights = Math.max(0, grouped[countryKey].totalNights - nightsToReduce);
     }
   }
-
   // Apply night reductions to nightsPaid
   for (const [countryKey, nightsToReduce] of Object.entries(paidNightsAdjustments)) {
     if (grouped[countryKey]) {
       grouped[countryKey].nightsPaid = Math.max(0, grouped[countryKey].nightsPaid - nightsToReduce);
     }
   }
-
   // Generate table rows with all columns and manual avg paid price reduction
   const rows = Object.entries(grouped).map(([countryKey, { displayName, totalPrice, totalNights, nightsPaid, totalPaid }]) => {
     const avgPricePerPerson = totalNights > 0 ? (totalPrice / totalNights / 2) : null;
     let avgPaidPrice = nightsPaid > 0 ? (totalPaid / nightsPaid / 2) : null;
-
     // Apply manual reduction if applicable
     if (avgPaidPrice !== null && manualAvgPaidPriceReductions[countryKey]) {
       avgPaidPrice = Math.max(0, avgPaidPrice - manualAvgPaidPriceReductions[countryKey]);
     }
-
     return `
       <tr>
         <td>${displayName}</td>
@@ -172,7 +195,6 @@ async function calculateAvgPerCountry() {
       </tr>
     `;
   });
-
   container.innerHTML = `
     <table>
       <thead>
@@ -188,39 +210,30 @@ async function calculateAvgPerCountry() {
     </table>
   `;
 }
-
-
-
 // Function to fetch and display flight details
 async function fetchAndDisplayFlightDetails() {
   const flightDetailsContainer = document.getElementById('flightDetailsContainer');
   if (!flightDetailsContainer) return;
-
   if (typeof supabaseClient === 'undefined') {
     console.error('Supabase client is not defined. Make sure script.js loads first.');
     return;
   }
-
   const { data, error } = await supabaseClient
     .from('cost_transport')
     .select('from, to, price, id')
     .eq('type of transport', 'flight')
     .order('id', { ascending: false });
-
   if (error) {
     console.error('Error fetching flight details:', error.message);
     flightDetailsContainer.innerHTML = '<p>Error loading flight details.</p>';
     return;
   }
-
   if (!data || data.length === 0) {
     flightDetailsContainer.innerHTML = '<p>No flight details found.</p>';
     return;
   }
-
   // Calculate total price per person
   const totalPrice = data.reduce((sum, flight) => sum + (flight.price || 0), 0);
-
   const rows = data.map(flight => `
     <tr>
       <td>${flight.from || 'Unknown'}</td>
@@ -228,7 +241,6 @@ async function fetchAndDisplayFlightDetails() {
       <td>€ ${(flight.price || 0).toFixed(2)}</td>
     </tr>
   `);
-
   flightDetailsContainer.innerHTML = `
     <div class="table-container">
       <table style="font-family: Arial, sans-serif;">
@@ -252,34 +264,28 @@ async function fetchAndDisplayFlightDetails() {
     </div>
   `;
 }
-
 // Function to fetch and display workaway details
 async function fetchAndDisplayWorkawayDetails() {
   const workawayDetailsContainer = document.getElementById('workawayDetailsContainer');
   if (!workawayDetailsContainer) return;
-
   if (typeof supabaseClient === 'undefined') {
     console.error('Supabase client is not defined. Make sure script.js loads first.');
     return;
   }
-
   const { data, error } = await supabaseClient
     .from('cost_accommodation')
     .select('country, nights, location, id')
     .eq('platform', 'workaway')
     .order('id', { ascending: false });
-
   if (error) {
     console.error('Error fetching workaway details:', error.message);
     workawayDetailsContainer.innerHTML = '<p>Error loading workaway details.</p>';
     return;
   }
-
   if (!data || data.length === 0) {
     workawayDetailsContainer.innerHTML = '<p>No workaway details found.</p>';
     return;
   }
-
   // Aggregate data by country and location
   const aggregatedProjects = data.reduce((acc, { country = 'Unknown', location = 'Unknown', nights = 0 }) => {
     const key = `${country}___${location}`; // Create a unique key for each country-location pair
@@ -287,10 +293,8 @@ async function fetchAndDisplayWorkawayDetails() {
     acc[key].totalNights += nights; // Sum the nights
     return acc;
   }, {});
-
   // Calculate total days across all projects
   const totalDays = Object.values(aggregatedProjects).reduce((sum, project) => sum + project.totalNights, 0);
-
   // Convert the aggregated object back to an array for mapping to table rows
   const rows = Object.values(aggregatedProjects).map(p => `
     <tr>
@@ -299,7 +303,6 @@ async function fetchAndDisplayWorkawayDetails() {
       <td>${p.totalNights}</td>
     </tr>
   `);
-
   workawayDetailsContainer.innerHTML = `
     <div class="table-container">
       <table>
@@ -323,32 +326,25 @@ async function fetchAndDisplayWorkawayDetails() {
     </div>
   `;
 }
-
-
 async function fetchAndDisplayAvgPricePerNightCountryTable() {
     await calculateAvgPerCountry();
 }
-
 async function fetchAndDisplayVisitedCountriesListContainer() {
     const container = document.getElementById('visitedCountriesListContainer');
-
     if (!container) {
         console.error('Visited Countries List Container not found.');
         return;
     }
-
     // 1. Select 'id' and 'country' and order by 'id'
     const { data, error } = await supabaseClient
         .from('cost_accommodation')
         .select('id, country') // Select both id and country
         .order('id', { ascending: true }); // Order by id in ascending order
-
     if (error) {
         console.error('Error fetching visited countries data:', error.message);
         container.innerHTML = '<p>Error loading visited countries.</p>';
         return;
     }
-
     let countriesToList = [];
     if (data && data.length > 0) {
         // Get unique countries from fetched data, maintaining order if possible
@@ -356,30 +352,22 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
         const uniqueFetchedCountries = new Set(data.map(item => item.country));
         countriesToList = [...uniqueFetchedCountries]; // Convert Set back to array
     }
-
     let combinedCountries = data ? data.map(item => ({ id: item.id, country: item.country })) : [];
-
     // Check if 'Norway' is already in the fetched data to avoid duplicates
     const isNorwayFetched = combinedCountries.some(item => item.country === 'Norway');
-
     if (!isNorwayFetched) {
-
         combinedCountries.push({ id: 50, country: 'Norway' });
     }
-
     combinedCountries.sort((a, b) => {
         if (a.id === b.id) {
             return a.country.localeCompare(b.country);
         }
         return a.id - b.id;
     });
-
     const uniqueSortedCountryNames = [...new Set(combinedCountries.map(item => item.country))];
     const listItems = uniqueSortedCountryNames.map(country => `<li>${country}</li>`).join('');
     container.innerHTML = `<ol>${listItems}</ol>`;
 }
-
-
 // Initialize all functions and event listeners within a single DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   getUniqueAccommodationData();
@@ -387,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateAvgPerCountry();
   getFlightCount();
   getWorkawayCount();
-
   const toggleButton = document.getElementById('toggleFlightDetails');
   const flightDetailsContainer = document.getElementById('flightDetailsContainer');
   const toggle2Button = document.getElementById('toggleWorkawayDetails');
@@ -397,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleVisitedCountriesDetails = document.getElementById('toggleVisitedCountriesDetails'); // Assuming you have an ID for this toggle button
   const visitedCountriesListContainer = document.getElementById('visitedCountriesListContainer'); // Assuming you have an ID for this container
   const toggleAccommodationDetails = document.getElementById('toggleAccommodationDetails');
-
   // Event listener for the flight details toggle button
   if (toggleButton && flightDetailsContainer) {
     toggleButton.addEventListener('click', () => {
@@ -415,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Toggle button or flight details container not found.');
   }
-
   // Event listener for the workaway details toggle button
   if (toggle2Button && workawayDetailsContainer) {
     toggle2Button.addEventListener('click', () => {
@@ -433,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Toggle button or workaway details container not found.');
   }
-
   // Event listener for the Avg Price Per Night Country Table toggle button
   if (toggleAPN && avgPricePerNightCountryTable) {
     toggleAPN.addEventListener('click', () => {
@@ -451,7 +435,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Toggle button or APN details container not found.');
   }
-
   // Event listener for the Visited Countries List toggle button
   if (toggleVisitedCountriesDetails && visitedCountriesListContainer) {
     toggleVisitedCountriesDetails.addEventListener('click', () => {
@@ -469,7 +452,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('Toggle button or visited countries list container not found.');
   }
-
   if (toggleAccommodationDetails && accommodationTable) {
     toggleAccommodationDetails.addEventListener('click', () => {
       if (accommodationTable.style.display === 'none') {
@@ -487,3 +469,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Accommodation toggle button or table not found.');
   }
 });
+
+// For browser: Assume supabaseClient is defined elsewhere (e.g., in HTML <script> or another file)
+// If not, add this for browser fallback (replace with your actual URL/key or anon key):
+if (typeof supabaseClient === 'undefined' && typeof window !== 'undefined') {
+  // Example: Load dynamically if needed
+  console.warn('supabaseClient not defined in browser—add your setup!');
+}
