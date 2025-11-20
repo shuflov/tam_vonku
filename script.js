@@ -116,8 +116,7 @@ async function calculateAvgPerCountry() {
   // Night reductions for nights paid
   const paidNightsAdjustments = {
     'sri lanka': 11,
-    'new zealand': 2,
-      'slovakia': 1
+    'slovakia': 1
   };
 
   // Manual reductions on Avg Paid Price (in euros)
