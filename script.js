@@ -109,12 +109,14 @@ async function calculateAvgPerCountry() {
   const countryAdjustments = {
     'sri lanka': 11,
     'south korea': 11,
+    'new zealand': 2,
     'slovakia': 1
   };
 
   // Night reductions for nights paid
   const paidNightsAdjustments = {
     'sri lanka': 11,
+    'new zealand': 2,
       'slovakia': 1
   };
 
