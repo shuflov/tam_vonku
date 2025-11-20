@@ -122,6 +122,7 @@ async function calculateAvgPerCountry() {
   // Manual reductions on Avg Paid Price (in euros)
   const manualAvgPaidPriceReductions = {
     'sri lanka': 0,
+    'new zealand': -2.99,
     'south korea': -2.87
   };
 
