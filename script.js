@@ -1,5 +1,5 @@
 
-const startDate = new Date('2024-01-28'); // YYYY-MM-DD format is best for consistency
+const startDate = new Date('2024-01-28');
 const currentDate = new Date();
 const timeDiff = currentDate.getTime() - startDate.getTime();
 const daysOnRoad = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
