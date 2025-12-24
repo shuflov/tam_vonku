@@ -254,7 +254,7 @@ async function fetchAndDisplayFlightDetails() {
       </table>
     </div>
     
-<button class="detail-button">Flights on World map</button>
+<button class="detail-button" <a href="visual.html" target="_blank">>Flights on World map</button>
     
   `;
 }
