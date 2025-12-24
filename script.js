@@ -253,7 +253,8 @@ async function fetchAndDisplayFlightDetails() {
 </tfoot>
       </table>
     </div>
-<button class="detail-button">show flights</button>
+    
+<button class="detail-button">Flights on World map</button>
     
   `;
 }
