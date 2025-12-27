@@ -3,7 +3,7 @@ const startDate = new Date('2024-01-28');
 const currentDate = new Date();
 const timeDiff = currentDate.getTime() - startDate.getTime();
 const daysOnRoad = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-document.getElementById('daysOnRoad').textContent = daysOnRoad + 1;
+document.getElementById('daysOnRoad').textContent = 699;
 
 // Helper function (from previous response, for consistency)
 const updateText = (id, value) => {
