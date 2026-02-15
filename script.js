@@ -420,6 +420,11 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
 
     // Load accommodation data from CSV
     const data = await loadCSV('data.csv');
+    
+    // DEBUG: Log what we got
+    console.log('CSV data loaded:', data.length, 'rows');
+    console.log('First row:', data[0]);
+    console.log('Sample id values:', data.slice(0, 3).map(d => ({ id: d.id, country: d.country })));
 
     if (!data || data.length === 0) {
         container.innerHTML = '<p>No visited countries data found.</p>';
@@ -435,6 +440,9 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
     }
 
     let combinedCountries = data ? data.map(item => ({ id: item.id, country: item.country })) : [];
+    
+    // DEBUG: Log combined countries
+    console.log('Combined countries before Norway:', combinedCountries.slice(0, 3));
 
     // Check if 'Norway' is already in the fetched data to avoid duplicates
     const isNorwayFetched = combinedCountries.some(item => item.country === 'Norway');
@@ -449,8 +457,15 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
         }
         return a.id - b.id;
     });
+    
+    // DEBUG: Log after sort
+    console.log('Combined countries after sort:', combinedCountries.slice(0, 5));
 
     const uniqueSortedCountryNames = [...new Set(combinedCountries.map(item => item.country))];
+    
+    // DEBUG: Log final list
+    console.log('Final unique countries:', uniqueSortedCountryNames);
+    
     const listItems = uniqueSortedCountryNames.map(country => `<li>${country}</li>`).join('');
     container.innerHTML = `<ol>${listItems}</ol>`;
 }
