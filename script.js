@@ -86,8 +86,8 @@ function parseCSV(csvText) {
     headers.forEach((header, index) => {
       let value = values[index] !== undefined ? values[index] : '';
       // Convert numeric fields
-      if (header === 'id' || header === 'price' || header === 'nights') {
-        value = value ? parseFloat(value) : 0;
+      if (header === 'id' || header === 'price' || header === 'nights' || header === 'person') {
+        value = value ? parseFloat(value) : (header === 'person' ? 2 : 0);
       }
       row[header] = value;
     });
@@ -163,9 +163,8 @@ async function calculateAveragePricePerNight() {
     return;
   }
 
-  const { data } = await supabaseClient
-    .from('cost_accommodation')
-    .select('"total price of stay", nights, person');
+  // Load data from CSV instead of Supabase
+  const data = await loadCSV('data.csv');
 
   // Calculate total person-nights: sum of (nights / 2 * person)
   const totalPersonNights = data.reduce((sum, entry) => {
@@ -182,10 +181,11 @@ async function calculateAvgPerCountry() {
   const container = document.getElementById('avgPricePerNightCountryTable');
   if (!container) return;
 
-  const { data } = await supabaseClient
-    .from('cost_accommodation')
-    .select('"total price of stay", country, nights, id, person')
-    .order('id', { ascending: true });
+  // Load data from CSV instead of Supabase
+  const data = await loadCSV('data.csv');
+  
+  // Sort by id ascending
+  data.sort((a, b) => (a.id || 0) - (b.id || 0));
 
   // Night reductions for total nights
   const countryAdjustments = {
