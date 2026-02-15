@@ -165,10 +165,17 @@ async function calculateAveragePricePerNight() {
 
   const { data } = await supabaseClient
     .from('cost_accommodation')
-    .select('"total price of stay"');
+    .select('"total price of stay", nights, person');
 
+  // Calculate total person-nights: sum of (nights / 2 * person)
+  const totalPersonNights = data.reduce((sum, entry) => {
+    const nights = entry.nights || 0;
+    const person = entry.person || 2;
+    return sum + ((nights / 2) * person);
+  }, 0);
+  
   const totalSpent = data.reduce((sum, entry) => sum + (entry["total price of stay"] || 0), 0);
-  updateText('avgPricePerNight', `€ ${(totalSpent / (days-1) / 2).toFixed(2)}`);
+  updateText('avgPricePerNight', `€ ${(totalSpent / totalPersonNights).toFixed(2)}`);
 }
 
 async function calculateAvgPerCountry() {
@@ -177,7 +184,7 @@ async function calculateAvgPerCountry() {
 
   const { data } = await supabaseClient
     .from('cost_accommodation')
-    .select('"total price of stay", country, nights, id')
+    .select('"total price of stay", country, nights, id, person')
     .order('id', { ascending: true });
 
   // Night reductions for total nights
@@ -202,15 +209,20 @@ async function calculateAvgPerCountry() {
   };
 
   // Group data by lowercase country key, store original name in displayName
-  const grouped = data.reduce((acc, { country = 'Unknown', ["total price of stay"]: price = 0, nights = 0 }) => {
+  const grouped = data.reduce((acc, { country = 'Unknown', ["total price of stay"]: price = 0, nights = 0, person = 2 }) => {
     const countryKey = country.toLowerCase();
-    acc[countryKey] = acc[countryKey] || { totalPrice: 0, totalNights: 0, nightsPaid: 0, totalPaid: 0, displayName: country };
+    acc[countryKey] = acc[countryKey] || { totalPrice: 0, totalNights: 0, nightsPaid: 0, totalPaid: 0, personNights: 0, personNightsPaid: 0, displayName: country };
     acc[countryKey].totalPrice += price;
     acc[countryKey].totalNights += nights;
+    
+    // Calculate person-nights: (nights / 2) * person
+    const personNights = (nights / 2) * person;
+    acc[countryKey].personNights += personNights;
 
     if (price > 0) {
       acc[countryKey].nightsPaid += nights;
       acc[countryKey].totalPaid += price;
+      acc[countryKey].personNightsPaid += personNights;
     }
 
     return acc;
@@ -231,9 +243,9 @@ async function calculateAvgPerCountry() {
   }
 
   // Generate table rows with all columns and manual avg paid price reduction
-  const rows = Object.entries(grouped).map(([countryKey, { displayName, totalPrice, totalNights, nightsPaid, totalPaid }]) => {
-    const avgPricePerPerson = totalNights > 0 ? (totalPrice / totalNights / 2) : null;
-    let avgPaidPrice = nightsPaid > 0 ? (totalPaid / nightsPaid / 2) : null;
+  const rows = Object.entries(grouped).map(([countryKey, { displayName, totalPrice, totalNights, nightsPaid, totalPaid, personNights, personNightsPaid }]) => {
+    const avgPricePerPerson = personNights > 0 ? (totalPrice / personNights) : null;
+    let avgPaidPrice = personNightsPaid > 0 ? (totalPaid / personNightsPaid) : null;
 
     // Apply manual reduction if applicable
     if (avgPaidPrice !== null && manualAvgPaidPriceReductions[countryKey]) {
