@@ -138,9 +138,8 @@ async function getWorkawayCount() {
 
 // Existing functions (unchanged from simplified version)
 async function getUniqueAccommodationData() {
-  const { data } = await supabaseClient
-    .from('cost_accommodation')
-    .select('accommodation, country');
+  // Load accommodation data from CSV
+  const data = await loadCSV('data.csv');
 
   if (!data?.length) {
     updateText('uniquePlaces', '0');
