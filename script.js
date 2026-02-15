@@ -113,25 +113,17 @@ async function getWorkawayCount() {
   const container = document.getElementById('workaway');
   if (!container) return;
 
-  // Fetch all workaway entries to count unique locations
-  const { data, error } = await supabaseClient
-    .from('cost_accommodation')
-    .select('location') // Only need the location column
-    .eq('platform', 'workaway');
+  // Load workaway data from CSV
+  const data = await loadCSV('data.csv');
+  const workawayData = data.filter(entry => entry.platform === 'workaway');
 
-  if (error) {
-    console.error('Error fetching workaway data for unique count:', error.message);
-    updateText('workaway', 'N/A');
-    return;
-  }
-
-  if (!data || data.length === 0) {
+  if (!workawayData || workawayData.length === 0) {
     updateText('workaway', '0');
     return;
   }
 
   // Get unique locations using a Set
-  const uniqueLocations = new Set(data.map(entry => entry.location)).size;
+  const uniqueLocations = new Set(workawayData.map(entry => entry.location)).size;
 
   updateText('workaway', uniqueLocations || '0');
 }
@@ -338,30 +330,17 @@ async function fetchAndDisplayWorkawayDetails() {
   const workawayDetailsContainer = document.getElementById('workawayDetailsContainer');
   if (!workawayDetailsContainer) return;
 
-  if (typeof supabaseClient === 'undefined') {
-    console.error('Supabase client is not defined. Make sure script.js loads first.');
-    return;
-  }
+  // Load workaway data from CSV
+  const data = await loadCSV('data.csv');
+  const workawayData = data.filter(entry => entry.platform === 'workaway');
 
-  const { data, error } = await supabaseClient
-    .from('cost_accommodation')
-    .select('country, nights, location, id')
-    .eq('platform', 'workaway')
-    .order('id', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching workaway details:', error.message);
-    workawayDetailsContainer.innerHTML = '<p>Error loading workaway details.</p>';
-    return;
-  }
-
-  if (!data || data.length === 0) {
+  if (!workawayData || workawayData.length === 0) {
     workawayDetailsContainer.innerHTML = '<p>No workaway details found.</p>';
     return;
   }
 
   // Aggregate data by country and location
-  const aggregatedProjects = data.reduce((acc, { country = 'Unknown', location = 'Unknown', nights = 0 }) => {
+  const aggregatedProjects = workawayData.reduce((acc, { country = 'Unknown', location = 'Unknown', nights = 0 }) => {
     const key = `${country}___${location}`; // Create a unique key for each country-location pair
     acc[key] = acc[key] || { country, location, totalNights: 0 }; // Initialize if not exists
     acc[key].totalNights += nights; // Sum the nights
