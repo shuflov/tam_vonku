@@ -371,15 +371,11 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
         return;
     }
 
-    // 1. Select 'id' and 'country' and order by 'id'
-    const { data, error } = await supabaseClient
-        .from('cost_accommodation')
-        .select('id, country') // Select both id and country
-        .order('id', { ascending: true }); // Order by id in ascending order
+    // Load accommodation data from CSV
+    const data = await loadCSV('data.csv');
 
-    if (error) {
-        console.error('Error fetching visited countries data:', error.message);
-        container.innerHTML = '<p>Error loading visited countries.</p>';
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p>No visited countries data found.</p>';
         return;
     }
 
@@ -397,7 +393,6 @@ async function fetchAndDisplayVisitedCountriesListContainer() {
     const isNorwayFetched = combinedCountries.some(item => item.country === 'Norway');
 
     if (!isNorwayFetched) {
-
         combinedCountries.push({ id: 50, country: 'Norway' });
     }
 
