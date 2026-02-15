@@ -86,7 +86,7 @@ function parseCSV(csvText) {
     headers.forEach((header, index) => {
       let value = values[index] !== undefined ? values[index] : '';
       // Convert numeric fields
-      if (header === 'id' || header === 'price' || header === 'nights' || header === 'person') {
+      if (header === 'id' || header === 'price' || header === 'nights' || header === 'person' || header === 'total price of stay') {
         value = value ? parseFloat(value) : (header === 'person' ? 2 : 0);
       }
       row[header] = value;
