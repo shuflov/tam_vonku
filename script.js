@@ -11,18 +11,55 @@ const updateText = (id, value) => {
   if (element) element.textContent = value;
 };
 
+// CSV Loading Utility
+async function loadCSV(filePath) {
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      throw new Error(`Failed to load ${filePath}: ${response.status} ${response.statusText}`);
+    }
+    const csvText = await response.text();
+    return parseCSV(csvText);
+  } catch (error) {
+    console.error('Error loading CSV:', error);
+    return [];
+  }
+}
+
+function parseCSV(csvText) {
+  const lines = csvText.trim().split('\n');
+  if (lines.length < 2) return [];
+  
+  const headers = lines[0].split(',').map(h => h.trim());
+  const data = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',');
+    const row = {};
+    headers.forEach((header, index) => {
+      let value = values[index] ? values[index].trim() : '';
+      // Convert numeric fields
+      if (header === 'id' || header === 'price') {
+        value = value ? parseFloat(value) : 0;
+      }
+      row[header] = value;
+    });
+    data.push(row);
+  }
+  
+  return data;
+}
+
 // Display flight count (flight details moved to flightDetails.js)
 async function getFlightCount() {
   const container = document.getElementById('numberOfFlights');
   if (!container) return;
 
-  // Fetch count of flights
-  const { count } = await supabaseClient
-    .from('cost_transport')
-    .select('*', { count: 'exact', head: true })
-    .eq('type of transport', 'flight');
+  // Load flights from CSV
+  const flights = await loadCSV('flights.csv');
+  const flightCount = flights.filter(f => f['type of transport'] === 'flight').length;
 
-  updateText('numberOfFlights', count || '0');
+  updateText('numberOfFlights', flightCount || '0');
 }
 
 async function getWorkawayCount() {
@@ -199,32 +236,23 @@ async function fetchAndDisplayFlightDetails() {
   const flightDetailsContainer = document.getElementById('flightDetailsContainer');
   if (!flightDetailsContainer) return;
 
-  if (typeof supabaseClient === 'undefined') {
-    console.error('Supabase client is not defined. Make sure script.js loads first.');
-    return;
-  }
-
-  const { data, error } = await supabaseClient
-    .from('cost_transport')
-    .select('from, to, price, id')
-    .eq('type of transport', 'flight')
-    .order('id', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching flight details:', error.message);
-    flightDetailsContainer.innerHTML = '<p>Error loading flight details.</p>';
-    return;
-  }
-
-  if (!data || data.length === 0) {
+  // Load flights from CSV
+  const flights = await loadCSV('flights.csv');
+  
+  if (!flights || flights.length === 0) {
     flightDetailsContainer.innerHTML = '<p>No flight details found.</p>';
     return;
   }
 
-  // Calculate total price per person
-  const totalPrice = data.reduce((sum, flight) => sum + (flight.price || 0), 0);
+  // Filter flights and sort by id descending
+  const flightData = flights
+    .filter(f => f['type of transport'] === 'flight')
+    .sort((a, b) => b.id - a.id);
 
-  const rows = data.map(flight => `
+  // Calculate total price per person
+  const totalPrice = flightData.reduce((sum, flight) => sum + (flight.price || 0), 0);
+
+  const rows = flightData.map(flight => `
     <tr>
       <td>${flight.from || 'Unknown'}</td>
       <td>${flight.to || 'Unknown'}</td>
