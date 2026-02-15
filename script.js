@@ -27,17 +27,64 @@ async function loadCSV(filePath) {
 }
 
 function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n');
-  if (lines.length < 2) return [];
+  // Parse CSV handling quoted fields with commas and newlines
+  const rows = [];
+  let currentRow = [];
+  let currentField = '';
+  let inQuotes = false;
   
-  const headers = lines[0].split(',').map(h => h.trim());
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const nextChar = csvText[i + 1];
+    
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        currentField += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      currentRow.push(currentField.trim());
+      currentField = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (currentField !== '' || currentRow.length > 0) {
+        currentRow.push(currentField.trim());
+        if (currentRow.some(field => field !== '')) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentField = '';
+      }
+      // Skip \r\n sequence
+      if (char === '\r' && nextChar === '\n') {
+        i++;
+      }
+    } else {
+      currentField += char;
+    }
+  }
+  
+  // Don't forget the last row
+  if (currentField !== '' || currentRow.length > 0) {
+    currentRow.push(currentField.trim());
+    if (currentRow.some(field => field !== '')) {
+      rows.push(currentRow);
+    }
+  }
+  
+  if (rows.length < 2) return [];
+  
+  const headers = rows[0];
   const data = [];
   
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i];
     const row = {};
     headers.forEach((header, index) => {
-      let value = values[index] ? values[index].trim() : '';
+      let value = values[index] !== undefined ? values[index] : '';
       // Convert numeric fields
       if (header === 'id' || header === 'price') {
         value = value ? parseFloat(value) : 0;
