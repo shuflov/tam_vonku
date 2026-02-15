@@ -1,14 +1,10 @@
 document.addEventListener("DOMContentLoaded", async function() {
 
-    let { data: accommodations, error } = await supabaseClient
-        .from('cost_accommodation')
-        .select('*')
-     .order('id', { ascending: true });
-
-    if (error) {
-        console.error(error);
-        return;
-    }
+    // Load accommodation data from CSV
+    const accommodations = await loadCSV('data.csv');
+    
+    // Sort by id ascending
+    accommodations.sort((a, b) => a.id - b.id);
 
     const tbody = document.querySelector("#accommodationTable tbody");
     tbody.innerHTML = ""; // Clear previous content
